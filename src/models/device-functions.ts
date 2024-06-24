@@ -13,7 +13,14 @@ export enum DeviceFunction{
     OutletPower = 'power',
     LightTemperature = 'color-temperature',
     LightColor = 'color-rgb',
-    ColorMode = 'color-mode'
+    ColorMode = 'color-mode',
+    // Value Functions
+    Toggle = 'toggle',
+    MaxOnTime = 'max-on-time',
+    BatteryLevel = 'battery-level',
+    Timer = 'timer',
+    Spigot1 = 'spigot-1',
+    Spigot2 = 'spigot-2'
 }
 
 /**
@@ -53,6 +60,33 @@ export const DeviceFunctions: DeviceFunctionDef[] = [
     // be returned when reading the current color setting
     {
         functionClass: DeviceFunction.ColorMode
+    },
+    {
+        functionClass: DeviceFunction.BatteryLevel
+    },
+    {
+        functionClass: DeviceFunction.Toggle,
+        functionInstanceName: DeviceFunction.Spigot1
+    },
+    {
+        functionClass: DeviceFunction.MaxOnTime,
+        functionInstanceName: DeviceFunction.Spigot1
+    },
+    {
+        functionClass: DeviceFunction.Timer,
+        functionInstanceName: DeviceFunction.Spigot1
+    },
+    {
+        functionClass: DeviceFunction.Toggle,
+        functionInstanceName: DeviceFunction.Spigot2
+    },
+    {
+        functionClass: DeviceFunction.MaxOnTime,
+        functionInstanceName: DeviceFunction.Spigot2
+    },
+    {
+        functionClass: DeviceFunction.Timer,
+        functionInstanceName: DeviceFunction.Spigot2
     }
 ];
 

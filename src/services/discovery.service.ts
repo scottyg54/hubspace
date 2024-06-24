@@ -4,7 +4,7 @@ import { DeviceResponse } from '../responses/devices-response';
 import { PLATFORM_NAME, PLUGIN_NAME } from '../settings';
 import { Endpoints } from '../api/endpoints';
 import { createHttpClientWithBearerInterceptor } from '../api/http-client-factory';
-import { getDeviceTypeForKey } from '../models/device-type';
+import { DeviceType, getDeviceTypeForKey } from '../models/device-type';
 import { Device } from '../models/device';
 import { createAccessoryForDevice } from '../accessories/device-accessory-factory';
 import { AxiosError } from 'axios';
@@ -44,6 +44,61 @@ export class DiscoveryService{
 
         // loop over the discovered devices and register each one if it has not already been registered
         for (const device of devices) {
+
+            if (device.type === DeviceType.Sprinkler) {
+                const filterOutSpigotFunctions = (device: Device, filterInstance: string): Device => {
+                    return {
+                        ...device,
+                        functions: device.functions.filter(func => func.functionInstance !== filterInstance)
+                    };
+                };
+                const spigot1 = filterOutSpigotFunctions(device, 'spigot-2');
+                const spigot2 = filterOutSpigotFunctions(device, 'spigot-1');
+                spigot1.name = spigot1.name + '1';
+                spigot2.name = spigot2.name + '2';
+
+                // Add 1 to the last hex digit to the UUID, and wrap around
+                const lastChar = spigot2.id.charAt(spigot2.id.length - 1);
+                const newChar = (parseInt(lastChar, 16) + 1).toString(16);
+                spigot2.id.slice(0, -1) + newChar;
+                spigot2.uuid = this._platform.api.hap.uuid.generate(spigot2.uuid.slice(0, -1) + newChar);
+
+
+                // see if an accessory with the same uuid has already been registered and restored from
+                // the cached devices we stored in the `configureAccessory` method above
+                let existingAccessory1 = this._cachedAccessories.find(accessory => accessory.UUID === spigot1.uuid);
+
+                if (existingAccessory1) {
+                    // the accessory already exists
+                    this._platform.log.info('Restoring existing accessory from cache:', existingAccessory1.displayName);
+                    this.registerCachedAccessory(existingAccessory1, spigot1);
+                } else {
+                    // the accessory does not yet exist, so we need to create it
+                    this._platform.log.info('Adding new accessory:', spigot1.name);
+                    existingAccessory1 = this.registerNewAccessory(spigot1);
+                }
+
+                createAccessoryForDevice(spigot1, this._platform, existingAccessory1);
+
+                // see if an accessory with the same uuid has already been registered and restored from
+                // the cached devices we stored in the `configureAccessory` method above
+                let existingAccessory2 = this._cachedAccessories.find(accessory => accessory.UUID === spigot2.uuid);
+
+                if (existingAccessory2) {
+                    // the accessory already exists
+                    this._platform.log.info('Restoring existing accessory from cache:', existingAccessory2.displayName);
+                    this.registerCachedAccessory(existingAccessory2, spigot2);
+                } else {
+                    // the accessory does not yet exist, so we need to create it
+                    this._platform.log.info('Adding new accessory:', spigot2.name);
+                    existingAccessory2 = this.registerNewAccessory(spigot2);
+                }
+
+                createAccessoryForDevice(spigot2, this._platform, existingAccessory2);
+
+                continue;
+            }
+
             // see if an accessory with the same uuid has already been registered and restored from
             // the cached devices we stored in the `configureAccessory` method above
             let existingAccessory = this._cachedAccessories.find(accessory => accessory.UUID === device.uuid);
@@ -57,6 +112,7 @@ export class DiscoveryService{
                 this._platform.log.info('Adding new accessory:', device.name);
                 existingAccessory = this.registerNewAccessory(device);
             }
+
             createAccessoryForDevice(device, this._platform, existingAccessory);
 
             // Special Case for RGB Lightbulbs which will create a second "virutal" lightbulb which is only in the Temperature Color Space
