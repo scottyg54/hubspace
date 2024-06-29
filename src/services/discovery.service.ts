@@ -41,6 +41,7 @@ export class DiscoveryService{
     async discoverDevices() {
         const devices = await this.getDevicesForAccount();
         const temperature_devices: Device[] = [];
+        const spigot_devices: Device[] = [];
 
         // loop over the discovered devices and register each one if it has not already been registered
         for (const device of devices) {
@@ -63,10 +64,13 @@ export class DiscoveryService{
                 spigot2.id.slice(0, -1) + newChar;
                 spigot2.uuid = this._platform.api.hap.uuid.generate(spigot2.uuid.slice(0, -1) + newChar);
 
+                spigot_devices.push(spigot1);
+                spigot_devices.push(spigot2);
 
                 // see if an accessory with the same uuid has already been registered and restored from
                 // the cached devices we stored in the `configureAccessory` method above
-                let existingAccessory1 = this._cachedAccessories.find(accessory => accessory.UUID === spigot1.uuid);
+                let existingAccessory1 = this._cachedAccessories.find(
+                    accessory => (accessory.UUID === spigot1.uuid && accessory.displayName === spigot1.name));
 
                 if (existingAccessory1) {
                     // the accessory already exists
@@ -82,7 +86,8 @@ export class DiscoveryService{
 
                 // see if an accessory with the same uuid has already been registered and restored from
                 // the cached devices we stored in the `configureAccessory` method above
-                let existingAccessory2 = this._cachedAccessories.find(accessory => accessory.UUID === spigot2.uuid);
+                let existingAccessory2 = this._cachedAccessories.find(
+                    accessory => (accessory.UUID === spigot2.uuid && accessory.displayName === spigot2.name));
 
                 if (existingAccessory2) {
                     // the accessory already exists
@@ -144,7 +149,8 @@ export class DiscoveryService{
             }
         }
 
-        const all_devices = devices.concat(temperature_devices);
+        let all_devices = devices.concat(temperature_devices);
+        all_devices = all_devices.concat(spigot_devices);
         this.clearStaleAccessories(this._cachedAccessories.filter(a => !all_devices.some(d => d.uuid === a.UUID)));
     }
 

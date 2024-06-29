@@ -58,11 +58,16 @@ export class DeviceService{
         try{
             const response =
             await this._httpClient
-                .get<DeviceStatusResponse>(`accounts/${this._platform.accountService.accountId}/devices/${deviceId}?expansions=attributes`);
+                .get<DeviceStatusResponse>(`accounts/${this._platform.accountService.accountId}/devices/${deviceId}?expansions=attributes,state`);
             deviceStatus = response.data;
         }catch(ex){
             this.handleError(<AxiosError>ex);
 
+            return undefined;
+        }
+
+        /* device is offline */
+        if(!deviceStatus.deviceState.available) {
             return undefined;
         }
 

@@ -9,4 +9,7 @@ export interface DeviceStatusResponse{
         value: string;
         updatedTimestamp: number;
     }[];
+    deviceState: {
+        available: boolean;
+    };
 }
