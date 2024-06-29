@@ -41,7 +41,18 @@ export class SprinklerAccessory extends HubspaceAccessory{
     }
 
     private async getActive(): Promise<CharacteristicValue>{
-        return this.platform.api.hap.Characteristic.Active.ACTIVE;
+        // Try to get the value
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle);
+        const value = await this.deviceService.getValueAsBoolean(this.device.deviceId, func.values[0].deviceValues[0].key);
+
+        // If the value is not defined then show 'Not Responding'
+        if(isNullOrUndefined(value)){
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
+
+        this.log.debug(`${this.device.name}: Triggered GET Active: ${value}`);
+        // Otherwise return the value
+        return value! ? this.platform.api.hap.Characteristic.Active.ACTIVE : this.platform.api.hap.Characteristic.Active.INACTIVE;
     }
 
     private async setActive(value: CharacteristicValue): Promise<void>{
@@ -60,7 +71,7 @@ export class SprinklerAccessory extends HubspaceAccessory{
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
         }
 
-        this.log.debug(`${this.device.name}: Triggered GET Active: ${value}`);
+        this.log.debug(`${this.device.name}: Triggered GET InUse: ${value}`);
         // Otherwise return the value
         return value! ? this.platform.api.hap.Characteristic.InUse.IN_USE : this.platform.api.hap.Characteristic.InUse.NOT_IN_USE;
     }
