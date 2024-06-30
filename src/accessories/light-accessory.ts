@@ -16,7 +16,7 @@ export class LightAccessory extends HubspaceAccessory{
      * @param rgbColorSpace The "Forced" Color Space of the Accessory
      */
     constructor(platform: HubspacePlatform, accessory: PlatformAccessory, rgbColorSpace: boolean) {
-        super(platform, accessory, platform.Service.Lightbulb);
+        super(platform, accessory, [platform.Service.Lightbulb]);
 
         this.configurePower();
         this.configureBrightness();
@@ -29,7 +29,7 @@ export class LightAccessory extends HubspaceAccessory{
     }
 
     private configurePower(): void{
-        this.service.getCharacteristic(this.platform.Characteristic.On)
+        this.services[0].getCharacteristic(this.platform.Characteristic.On)
             .onGet(this.getOn.bind(this))
             .onSet(this.setOn.bind(this));
     }
@@ -37,7 +37,7 @@ export class LightAccessory extends HubspaceAccessory{
     private configureBrightness(): void{
         if(!this.supportsFunction(DeviceFunction.Brightness)) return;
 
-        this.service.getCharacteristic(this.platform.Characteristic.Brightness)
+        this.services[0].getCharacteristic(this.platform.Characteristic.Brightness)
             .onGet(this.getBrightness.bind(this))
             .onSet(this.setBrightness.bind(this));
     }
@@ -45,7 +45,7 @@ export class LightAccessory extends HubspaceAccessory{
     private configureTemperature(): void{
         if(!this.supportsFunction(DeviceFunction.LightTemperature)) return;
 
-        this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+        this.services[0].getCharacteristic(this.platform.Characteristic.ColorTemperature)
             .onGet(this.getTemperature.bind(this))
             .onSet(this.setTemperature.bind(this));
     }
@@ -53,10 +53,10 @@ export class LightAccessory extends HubspaceAccessory{
     private configureColor(): boolean{
         if(!this.supportsFunction(DeviceFunction.LightColor)) return false;
 
-        this.service.getCharacteristic(this.platform.Characteristic.Hue)
+        this.services[0].getCharacteristic(this.platform.Characteristic.Hue)
             .onGet(this.getHue.bind(this))
             .onSet(this.setHue.bind(this));
-        this.service.getCharacteristic(this.platform.Characteristic.Saturation)
+        this.services[0].getCharacteristic(this.platform.Characteristic.Saturation)
             .onGet(this.getSaturation.bind(this))
             .onSet(this.setSaturation.bind(this));
 

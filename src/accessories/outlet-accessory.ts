@@ -12,14 +12,14 @@ export class OutletAccessory extends HubspaceAccessory{
      * @param accessory Platform accessory
      */
     constructor(platform: HubspacePlatform, accessory: PlatformAccessory) {
-        super(platform, accessory, platform.Service.Outlet);
+        super(platform, accessory, [platform.Service.Outlet]);
 
         this.configurePower();
     }
 
     private configurePower(): void{
         if(this.supportsFunction(DeviceFunction.OutletPower)){
-            this.service.getCharacteristic(this.platform.Characteristic.On)
+            this.services[0].getCharacteristic(this.platform.Characteristic.On)
                 .onGet(this.getOn.bind(this))
                 .onSet(this.setOn.bind(this));
         }

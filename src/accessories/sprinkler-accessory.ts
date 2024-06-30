@@ -12,29 +12,31 @@ export class SprinklerAccessory extends HubspaceAccessory{
      * @param accessory Platform accessory
      */
     constructor(platform: HubspacePlatform, accessory: PlatformAccessory) {
-        super(platform, accessory, platform.Service.Valve);
+        super(platform, accessory, [platform.Service.Valve, platform.Service.Battery]);
 
         this.configureSprinkler();
     }
 
     private configureSprinkler(): void{
         if(this.supportsFunction(DeviceFunction.Toggle)){
-            this.service.getCharacteristic(this.platform.Characteristic.Active)
+            this.services[0].getCharacteristic(this.platform.Characteristic.Active)
                 .onGet(this.getActive.bind(this))
                 .onSet(this.setActive.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.InUse)
+            this.services[0].getCharacteristic(this.platform.Characteristic.InUse)
                 .onGet(this.getInUse.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.ValveType)
-                .onGet(this.getValveType.bind(this));
+            this.services[0].getCharacteristic(this.platform.Characteristic.ValveType)
+                .onGet(() => this.platform.api.hap.Characteristic.ValveType.IRRIGATION);
         }
         if(this.supportsFunction(DeviceFunction.BatteryLevel)) {
-            this.service.getCharacteristic(this.platform.Characteristic.BatteryLevel)
+            this.services[1].getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+                .onGet(this.getStatusLowBattery.bind(this));
+            this.services[1].getCharacteristic(this.platform.Characteristic.BatteryLevel)
                 .onGet(this.getBatteryLevel.bind(this));
         }
         if(this.supportsFunction(DeviceFunction.Timer)) {
-            this.service.getCharacteristic(this.platform.Characteristic.RemainingDuration)
+            this.services[0].getCharacteristic(this.platform.Characteristic.RemainingDuration)
                 .onGet(this.getRemainingDuration.bind(this));
-            this.service.getCharacteristic(this.platform.Characteristic.SetDuration)
+            this.services[0].getCharacteristic(this.platform.Characteristic.SetDuration)
                 .onGet(this.getMaxDuration.bind(this))
                 .onSet(this.setMaxDuration.bind(this));
         }
@@ -76,26 +78,6 @@ export class SprinklerAccessory extends HubspaceAccessory{
         return value! ? this.platform.api.hap.Characteristic.InUse.IN_USE : this.platform.api.hap.Characteristic.InUse.NOT_IN_USE;
     }
 
-    private async getValveType(): Promise<CharacteristicValue>{
-        this.log.debug(`${this.device.name}: Triggered GET ValveType`);
-        return this.platform.api.hap.Characteristic.ValveType.IRRIGATION;
-    }
-
-    private async getBatteryLevel(): Promise<CharacteristicValue>{
-        // Try to get the value
-        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.BatteryLevel);
-        const value = await this.deviceService.getValueAsInteger(this.device.deviceId, func.values[0].deviceValues[0].key);
-
-        // If the value is not defined then show 'Not Responding'
-        if(isNullOrUndefined(value)){
-            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-        }
-
-        this.log.debug(`${this.device.name}: Triggered GET Battery Level: ${value}`);
-        // Otherwise return the value
-        return value!;
-    }
-
     private async getRemainingDuration(): Promise<CharacteristicValue>{
         // Try to get the value
         const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Timer);
@@ -135,5 +117,42 @@ export class SprinklerAccessory extends HubspaceAccessory{
         }
         // Otherwise return the value
         return seconds!;
+    }
+
+    private async getStatusLowBattery(): Promise<CharacteristicValue>{
+        // Try to get the value
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.BatteryLevel);
+        const value = await this.deviceService.getValueAsInteger(this.device.deviceId, func.values[0].deviceValues[0].key);
+
+        // If the value is not defined then show 'Not Responding'
+        if(isNullOrUndefined(value)){
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
+
+        let ret;
+        if ((value as number) <= 20) {
+            ret = this.platform.api.hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW;
+        } else {
+            ret = this.platform.api.hap.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
+        }
+
+        this.log.debug(`${this.device.name}: Triggered GET Battery Level: ${ret}`);
+
+        return ret!;
+    }
+
+    private async getBatteryLevel(): Promise<CharacteristicValue>{
+        // Try to get the value
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.BatteryLevel);
+        const value = await this.deviceService.getValueAsInteger(this.device.deviceId, func.values[0].deviceValues[0].key);
+
+        // If the value is not defined then show 'Not Responding'
+        if(isNullOrUndefined(value)){
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
+
+        this.log.debug(`${this.device.name}: Triggered GET Battery Level: ${value}`);
+        // Otherwise return the value
+        return value!;
     }
 }

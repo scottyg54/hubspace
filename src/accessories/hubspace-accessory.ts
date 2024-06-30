@@ -10,9 +10,9 @@ import { DeviceService } from '../services/device.service';
 export abstract class HubspaceAccessory{
 
     /**
-     * Accessory service
+     * Accessory services
      */
-    protected readonly service: Service;
+    protected readonly services: Service[] = [];
 
     /**
      * Application logger
@@ -38,9 +38,13 @@ export abstract class HubspaceAccessory{
     constructor(
         protected readonly platform: HubspacePlatform,
         protected readonly accessory: PlatformAccessory,
-        service: WithUUID<typeof Service> | Service
+        services: (WithUUID<typeof Service> | Service)[]
     ) {
-        this.service = accessory.getService(service as WithUUID<typeof Service>) || this.accessory.addService(service as Service);
+        for (const service of services) {
+            const initializedService =
+                accessory.getService(service as WithUUID<typeof Service>) || this.accessory.addService(service as Service);
+            this.services.push(initializedService);
+        }
 
         this.log = platform.log;
         this.deviceService = platform.deviceService;
