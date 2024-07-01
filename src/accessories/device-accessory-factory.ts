@@ -21,11 +21,7 @@ import { DeviceFunction } from '../models/device-functions';
 export function createAccessoryForDevice(device: Device, platform: HubspacePlatform, accessory: PlatformAccessory): HubspaceAccessory{
     switch(device.type){
         case DeviceType.Light:
-            if (device.name.endsWith(' Temperature')) {
-                return new LightAccessory(platform, accessory, false);
-            } else {
-                return new LightAccessory(platform, accessory, true);
-            }
+            return new LightAccessory(platform, accessory);
         case DeviceType.Fan:
             return new FanAccessory(platform, accessory);
         case DeviceType.Outlet:

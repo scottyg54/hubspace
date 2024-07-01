@@ -1,4 +1,4 @@
-import { Logger, PlatformAccessory, Service, WithUUID } from 'homebridge';
+import { PlatformConfig, Logger, PlatformAccessory, Service, WithUUID } from 'homebridge';
 import { Device } from '../models/device';
 import { DeviceFunction } from '../models/device-functions';
 import { HubspacePlatform } from '../platform';
@@ -18,6 +18,11 @@ export abstract class HubspaceAccessory{
      * Application logger
      */
     protected readonly log: Logger;
+
+    /**
+     * Application config
+     */
+    protected readonly config: PlatformConfig;
 
     /**
      * Device interaction service
@@ -50,6 +55,7 @@ export abstract class HubspaceAccessory{
 
         /* TODO: Clear stale services */
 
+        this.config = platform.config;
         this.log = platform.log;
         this.deviceService = platform.deviceService;
         this.device = accessory.context.device;
@@ -69,5 +75,4 @@ export abstract class HubspaceAccessory{
     protected supportsFunction(deviceFunction: DeviceFunction): boolean{
         return this.device.functions.some(fc => fc.functionClass === deviceFunction);
     }
-
 }
