@@ -5,7 +5,6 @@ import { isNullOrUndefined } from '../utils';
 import { HubspaceAccessory } from './hubspace-accessory';
 
 export class SprinklerAccessory extends HubspaceAccessory{
-
     /**
      * Crates a new instance of the accessory
      * @param platform Hubspace platform
@@ -36,14 +35,14 @@ export class SprinklerAccessory extends HubspaceAccessory{
                 .onGet(() => this.platform.api.hap.Characteristic.ValveType.IRRIGATION);
         }
         if(this.supportsFunction(DeviceFunction.Timer)) {
-            this.services[0].getCharacteristic(this.platform.Characteristic.RemainingDuration)
-                .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot1));
+            // this.services[0].getCharacteristic(this.platform.Characteristic.RemainingDuration)
+            //     .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot1));
             this.services[0].getCharacteristic(this.platform.Characteristic.SetDuration)
                 .onGet(() => this.getMaxDuration(DeviceFunction.Spigot1))
                 .onSet((value) => this.setMaxDuration(DeviceFunction.Spigot1, value));
 
-            this.services[1].getCharacteristic(this.platform.Characteristic.RemainingDuration)
-                .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot2));
+            // this.services[1].getCharacteristic(this.platform.Characteristic.RemainingDuration)
+            //     .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot2));
             this.services[1].getCharacteristic(this.platform.Characteristic.SetDuration)
                 .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot2))
                 .onSet((value) => this.setMaxDuration(DeviceFunction.Spigot2, value));
@@ -76,6 +75,28 @@ export class SprinklerAccessory extends HubspaceAccessory{
         const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle, functionType);
         this.log.debug(`${this.device.name}: Triggered SET Active: ${value}`);
         await this.deviceService.setValue(this.device.deviceId, func.values[0].deviceValues[0].key, value);
+
+        if (functionType === DeviceFunction.Spigot1) {
+            this.services[0].updateCharacteristic(this.platform.Characteristic.InUse, value);
+            this.services[0].updateCharacteristic(this.platform.Characteristic.Active, value);
+            if (value === this.platform.api.hap.Characteristic.Active.INACTIVE) {
+                this.services[0].updateCharacteristic(this.platform.Characteristic.RemainingDuration, 0);
+            } else {
+                /* TODO: figure out how to query this */
+                this.services[0].updateCharacteristic(
+                    this.platform.Characteristic.RemainingDuration, await this.getMaxDuration(functionType));
+            }
+        } else if (functionType === DeviceFunction.Spigot2) {
+            this.services[1].updateCharacteristic(this.platform.Characteristic.InUse, value);
+            this.services[1].updateCharacteristic(this.platform.Characteristic.Active, value);
+            if (value === this.platform.api.hap.Characteristic.Active.INACTIVE) {
+                this.services[1].updateCharacteristic(this.platform.Characteristic.RemainingDuration, 0);
+            } else {
+                /* TODO: figure out how to query this */
+                this.services[1].updateCharacteristic(
+                    this.platform.Characteristic.RemainingDuration, await this.getMaxDuration(functionType));
+            }
+        }
     }
 
     private async getInUse(functionType: DeviceFunction): Promise<CharacteristicValue>{
