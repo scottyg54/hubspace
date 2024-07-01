@@ -6,8 +6,8 @@
   
   # Homebridge Hubspace
   
-  <a href="https://www.npmjs.com/homebridge-hubspace">
-    <img src="https://img.shields.io/npm/v/homebridge-hubspace.svg?logo=npm&logoColor=fff&label=NPM+package&color=limegreen" alt="Hubspace for Homebridge on npm" />
+  <a href="https://www.npmjs.com/package/@xenuiswatching/homebridge-hubspace">
+    <img src="https://img.shields.io/npm/v/@xenuiswatching/homebridge-hubspace.svg?logo=npm&logoColor=fff&label=NPM+package&color=limegreen" alt="Hubspace for Homebridge on npm" />
   </a>
   
   <a href="https://github.com/homebridge/homebridge/wiki/Verified-Plugins">
