@@ -3,7 +3,7 @@
   "name": "@xenuiswatching/homebridge-hubspace",
   "version": "2.1.0",
   "description": "Homebridge plugin for controlling Hubspace accessories.",
-  "homepage": "https://github.com/sajmonr/homebridge-hubspace#readme",
+  "homepage": "https://github.com/XenuIsWatching/homebridge-hubspace#readme",
   "author": "Adam Simonicek & Ryan McClelland",
   "license": "Apache-2.0",
   "repository": {
