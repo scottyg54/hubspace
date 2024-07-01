@@ -37,6 +37,8 @@ export class LightAccessory extends HubspaceAccessory{
         } else {
             this.configureTemperature(0);
         }
+
+        this.removeStaleServices();
     }
 
     private configurePower(i: number): void{

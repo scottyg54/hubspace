@@ -14,6 +14,8 @@ export class SprinklerAccessory extends HubspaceAccessory{
         super(platform, accessory, [new platform.Service.Valve('1', '1'), new platform.Service.Valve('2', '2'), platform.Service.Battery]);
 
         this.configureSprinkler();
+
+        this.removeStaleServices();
     }
 
     private configureSprinkler(): void{

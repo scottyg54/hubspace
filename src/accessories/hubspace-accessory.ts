@@ -53,8 +53,6 @@ export abstract class HubspaceAccessory{
             this.services.push(initializedService);
         }
 
-        /* TODO: Clear stale services */
-
         this.config = platform.config;
         this.log = platform.log;
         this.deviceService = platform.deviceService;
@@ -74,5 +72,14 @@ export abstract class HubspaceAccessory{
      */
     protected supportsFunction(deviceFunction: DeviceFunction): boolean{
         return this.device.functions.some(fc => fc.functionClass === deviceFunction);
+    }
+
+    protected removeStaleServices(): void{
+        /* slice out the accessory service */
+        const staleServices =
+            this.accessory.services.slice(1).filter(a => !this.services.some(d => d.UUID === a.UUID && a.displayName === d.displayName));
+        for (const staleService of staleServices) {
+            this.accessory.removeService(staleService);
+        }
     }
 }

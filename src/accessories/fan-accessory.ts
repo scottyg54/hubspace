@@ -19,6 +19,8 @@ export class FanAccessory extends HubspaceAccessory{
 
         this.configureActive();
         this.configureRotationSpeed();
+
+        this.removeStaleServices();
     }
 
     private configureActive(): void{

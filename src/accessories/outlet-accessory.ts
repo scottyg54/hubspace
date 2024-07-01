@@ -15,6 +15,8 @@ export class OutletAccessory extends HubspaceAccessory{
         super(platform, accessory, [platform.Service.Outlet]);
 
         this.configurePower();
+
+        this.removeStaleServices();
     }
 
     private configurePower(): void{
