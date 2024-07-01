@@ -10,10 +10,6 @@
     <img src="https://img.shields.io/npm/v/@xenuiswatching/homebridge-hubspace.svg?logo=npm&logoColor=fff&label=NPM+package&color=limegreen" alt="Hubspace for Homebridge on npm" />
   </a>
   
-  <a href="https://github.com/homebridge/homebridge/wiki/Verified-Plugins">
-    <img title="Verified by Homebridge" src="https://badgen.net/badge/homebridge/verified/purple"/>
-  </a>
-  
 </span>
 
 # About plugin
