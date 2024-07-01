@@ -38,13 +38,17 @@ export abstract class HubspaceAccessory{
     constructor(
         protected readonly platform: HubspacePlatform,
         protected readonly accessory: PlatformAccessory,
-        services: (WithUUID<typeof Service> | Service)[]
+        services: (Service | WithUUID<typeof Service>)[]
     ) {
         for (const service of services) {
             const initializedService =
-                accessory.getService(service as WithUUID<typeof Service>) || this.accessory.addService(service as Service);
+                accessory.getServiceById((service as Service).displayName, (service as Service).subtype!) ||
+                accessory.getService(service as WithUUID<typeof Service>) ||
+                this.accessory.addService(service as Service);
             this.services.push(initializedService);
         }
+
+        /* TODO: Clear stale services */
 
         this.log = platform.log;
         this.deviceService = platform.deviceService;

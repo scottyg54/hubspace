@@ -12,7 +12,7 @@ export class SprinklerAccessory extends HubspaceAccessory{
      * @param accessory Platform accessory
      */
     constructor(platform: HubspacePlatform, accessory: PlatformAccessory) {
-        super(platform, accessory, [platform.Service.Valve, platform.Service.Battery]);
+        super(platform, accessory, [new platform.Service.Valve('1', '1'), new platform.Service.Valve('2', '2'), platform.Service.Battery]);
 
         this.configureSprinkler();
     }
@@ -20,31 +20,46 @@ export class SprinklerAccessory extends HubspaceAccessory{
     private configureSprinkler(): void{
         if(this.supportsFunction(DeviceFunction.Toggle)){
             this.services[0].getCharacteristic(this.platform.Characteristic.Active)
-                .onGet(this.getActive.bind(this))
-                .onSet(this.setActive.bind(this));
+                .onGet(() => this.getActive(DeviceFunction.Spigot1))
+                .onSet((value) => this.setActive(DeviceFunction.Spigot1, value));
             this.services[0].getCharacteristic(this.platform.Characteristic.InUse)
-                .onGet(this.getInUse.bind(this));
+                .onGet(() => this.getInUse(DeviceFunction.Spigot1));
             this.services[0].getCharacteristic(this.platform.Characteristic.ValveType)
                 .onGet(() => this.platform.api.hap.Characteristic.ValveType.IRRIGATION);
-        }
-        if(this.supportsFunction(DeviceFunction.BatteryLevel)) {
-            this.services[1].getCharacteristic(this.platform.Characteristic.StatusLowBattery)
-                .onGet(this.getStatusLowBattery.bind(this));
-            this.services[1].getCharacteristic(this.platform.Characteristic.BatteryLevel)
-                .onGet(this.getBatteryLevel.bind(this));
+
+            this.services[1].getCharacteristic(this.platform.Characteristic.Active)
+                .onGet(() => this.getActive(DeviceFunction.Spigot2))
+                .onSet((value) => this.setActive(DeviceFunction.Spigot2, value));
+            this.services[1].getCharacteristic(this.platform.Characteristic.InUse)
+                .onGet(() => this.getInUse(DeviceFunction.Spigot2));
+            this.services[1].getCharacteristic(this.platform.Characteristic.ValveType)
+                .onGet(() => this.platform.api.hap.Characteristic.ValveType.IRRIGATION);
         }
         if(this.supportsFunction(DeviceFunction.Timer)) {
             this.services[0].getCharacteristic(this.platform.Characteristic.RemainingDuration)
-                .onGet(this.getRemainingDuration.bind(this));
+                .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot1));
             this.services[0].getCharacteristic(this.platform.Characteristic.SetDuration)
-                .onGet(this.getMaxDuration.bind(this))
-                .onSet(this.setMaxDuration.bind(this));
+                .onGet(() => this.getMaxDuration(DeviceFunction.Spigot1))
+                .onSet((value) => this.setMaxDuration(DeviceFunction.Spigot1, value));
+
+            this.services[1].getCharacteristic(this.platform.Characteristic.RemainingDuration)
+                .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot2));
+            this.services[1].getCharacteristic(this.platform.Characteristic.SetDuration)
+                .onGet(() => this.getRemainingDuration(DeviceFunction.Spigot2))
+                .onSet((value) => this.setMaxDuration(DeviceFunction.Spigot2, value));
+        }
+
+        if(this.supportsFunction(DeviceFunction.BatteryLevel)) {
+            this.services[2].getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+                .onGet(this.getStatusLowBattery.bind(this));
+            this.services[2].getCharacteristic(this.platform.Characteristic.BatteryLevel)
+                .onGet(this.getBatteryLevel.bind(this));
         }
     }
 
-    private async getActive(): Promise<CharacteristicValue>{
+    private async getActive(functionType: DeviceFunction): Promise<CharacteristicValue>{
         // Try to get the value
-        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle);
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle, functionType);
         const value = await this.deviceService.getValueAsBoolean(this.device.deviceId, func.values[0].deviceValues[0].key);
 
         // If the value is not defined then show 'Not Responding'
@@ -57,15 +72,15 @@ export class SprinklerAccessory extends HubspaceAccessory{
         return value! ? this.platform.api.hap.Characteristic.Active.ACTIVE : this.platform.api.hap.Characteristic.Active.INACTIVE;
     }
 
-    private async setActive(value: CharacteristicValue): Promise<void>{
-        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle);
+    private async setActive(functionType: DeviceFunction, value: CharacteristicValue): Promise<void>{
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle, functionType);
         this.log.debug(`${this.device.name}: Triggered SET Active: ${value}`);
         await this.deviceService.setValue(this.device.deviceId, func.values[0].deviceValues[0].key, value);
     }
 
-    private async getInUse(): Promise<CharacteristicValue>{
+    private async getInUse(functionType: DeviceFunction): Promise<CharacteristicValue>{
         // Try to get the value
-        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle);
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Toggle, functionType);
         const value = await this.deviceService.getValueAsBoolean(this.device.deviceId, func.values[0].deviceValues[0].key);
 
         // If the value is not defined then show 'Not Responding'
@@ -78,9 +93,9 @@ export class SprinklerAccessory extends HubspaceAccessory{
         return value! ? this.platform.api.hap.Characteristic.InUse.IN_USE : this.platform.api.hap.Characteristic.InUse.NOT_IN_USE;
     }
 
-    private async getRemainingDuration(): Promise<CharacteristicValue>{
+    private async getRemainingDuration(functionType: DeviceFunction): Promise<CharacteristicValue>{
         // Try to get the value
-        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Timer);
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.Timer, functionType);
         const value = await this.deviceService.getValueAsInteger(this.device.deviceId, func.values[0].deviceValues[0].key);
 
         // If the value is not defined then show 'Not Responding'
@@ -93,16 +108,16 @@ export class SprinklerAccessory extends HubspaceAccessory{
         return value!;
     }
 
-    private async setMaxDuration(value: CharacteristicValue): Promise<void>{
-        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.MaxOnTime);
+    private async setMaxDuration(functionType: DeviceFunction, value: CharacteristicValue): Promise<void>{
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.MaxOnTime, functionType);
         this.log.debug(`${this.device.name}: Triggered SET Max Duration: ${value}`);
         const minutes = (value as number) / 60;
         await this.deviceService.setValue(this.device.deviceId, func.values[0].deviceValues[0].key, minutes);
     }
 
-    private async getMaxDuration(): Promise<CharacteristicValue>{
+    private async getMaxDuration(functionType: DeviceFunction): Promise<CharacteristicValue>{
         // Try to get the value
-        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.MaxOnTime);
+        const func = getDeviceFunctionDef(this.device.functions, DeviceFunction.MaxOnTime, functionType);
         const value = await this.deviceService.getValueAsInteger(this.device.deviceId, func.values[0].deviceValues[0].key);
 
         // If the value is not defined then show 'Not Responding'

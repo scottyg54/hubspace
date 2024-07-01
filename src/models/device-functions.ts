@@ -97,9 +97,12 @@ export const DeviceFunctions: DeviceFunctionDef[] = [
  * @throws {@link Error} when a type has no definition associated with it
  */
 export function getDeviceFunctionDef(
-    deviceFunctionResponse: DeviceFunctionResponse[], deviceFunction: DeviceFunction): DeviceFunctionResponse{
+    deviceFunctionResponse: DeviceFunctionResponse[],
+    deviceFunction: DeviceFunction,
+    deviceFunctionInstance?: DeviceFunction): DeviceFunctionResponse{
 
-    const fc = deviceFunctionResponse.find(fc => fc.functionClass === deviceFunction);
+    const fc = deviceFunctionResponse.find(fc => fc.functionClass === deviceFunction &&
+        (deviceFunctionInstance ? fc.functionInstance === deviceFunctionInstance : true));
 
     // Throw an error when not found - function definition must be set during development,
     // otherwise the plugin will not work as expected.
