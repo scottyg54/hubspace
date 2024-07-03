@@ -326,7 +326,6 @@ export class LightAccessory extends HubspaceAccessory{
     private throwErrorIfNullOrUndefined(value: any, message: string): void {
         // If the value is not defined then show 'Not Responding'
         if (isNullOrUndefined(value)) {
-            this.log.error(`${this.device.name}: ${message}`);
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
         }
     }
@@ -334,7 +333,6 @@ export class LightAccessory extends HubspaceAccessory{
     private throwErrorIfNullOrUndefinedInt(value: any, message: string): void {
         // If the value is not defined then show 'Not Responding'
         if (isNullOrUndefined(value) || value === -1) {
-            this.log.error(`${this.device.name}: ${message}`);
             throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
         }
     }
