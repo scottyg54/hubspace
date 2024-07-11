@@ -19,6 +19,9 @@ export class SprinklerAccessory extends HubspaceAccessory{
     }
 
     private configureSprinkler(): void{
+        this.configureName(this.services[0], this.accessory.displayName + ' 1');
+        this.configureName(this.services[1], this.accessory.displayName + ' 2');
+
         if(this.supportsFunction(DeviceFunction.Toggle)){
             this.services[0].getCharacteristic(this.platform.Characteristic.Active)
                 .onGet(() => this.getActive(DeviceFunction.Spigot1))

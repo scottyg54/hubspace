@@ -20,6 +20,7 @@ export class LightAccessory extends HubspaceAccessory{
 
         this.configurePower(0);
         this.configureBrightness(0);
+        this.configureName(this.services[0], this.accessory.displayName);
 
         // * If [Color Temperature] characteristic is included in the `Light Bulb`, `Hue` and `Saturation` must not be included as optional
         // * characteristics in `Light Bulb`. This characteristic must not be used for lamps which support color.
@@ -31,6 +32,7 @@ export class LightAccessory extends HubspaceAccessory{
                 this.accessory.addService(service as Service);
             this.services.push(initializedService);
 
+            this.configureName(this.services[1], this.accessory.displayName + ' Temperature');
             this.configurePower(1);
             this.configureBrightness(1);
             this.configureTemperature(1);

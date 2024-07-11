@@ -82,4 +82,9 @@ export abstract class HubspaceAccessory{
             this.accessory.removeService(staleService);
         }
     }
+
+    protected configureName(service: Service, name: string): void{
+        service.setCharacteristic(this.platform.Characteristic.Name, name);
+        service.setCharacteristic(this.platform.Characteristic.ConfiguredName, name);
+    }
 }
