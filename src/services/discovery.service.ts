@@ -113,6 +113,7 @@ export class DiscoveryService{
         const type = getDeviceTypeForKey(response.description.device.deviceClass);
 
         if(!type) return undefined;
+         this._platform.log.info('Reported Device Functions:', response.description.functions);
 
         return {
             id: response.id,
