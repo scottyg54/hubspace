@@ -1,17 +1,17 @@
 {
   "displayName": "Homebridge Hubspace",
-  "name": "@xenuiswatching/homebridge-hubspace",
+  "name": "homebridge-hubspace",
   "version": "2.1.2",
   "description": "Homebridge plugin for controlling Hubspace accessories.",
-  "homepage": "https://github.com/XenuIsWatching/homebridge-hubspace#readme",
-  "author": "Adam Simonicek & Ryan McClelland",
+  "homepage": "https://github.com/scottyg54/hubspace#readme",
+  "author": "Adam Simonicek & Ryan McClelland & Scott Garfield",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/XenuIsWatching/homebridge-hubspace.git"
+    "url": "https://github.com/scottyg54/hubspace.git"
   },
   "bugs": {
-    "url": "https://github.com/XenuIsWatching/homebridge-hubspace/issues"
+    "url": "https://github.com/scottyg54/hubspace/issues"
   },
   "engines": {
     "node": ">=14.18.1",
