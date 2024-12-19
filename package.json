@@ -1,6 +1,6 @@
 {
   "displayName": "Homebridge Hubspace by Scott",
-  "name": "homebridge-hubspace",
+  "name": "homebridge-hubspace-scott",
   "version": "2.1.2",
   "description": "Homebridge plugin for controlling Hubspace accessories.",
   "homepage": "https://github.com/scottyg54/hubspace#readme",
